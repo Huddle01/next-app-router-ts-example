@@ -3,6 +3,7 @@
 import ChatBox from '@/components/ChatBox/ChatBox';
 import RemotePeer from '@/components/RemotePeer';
 import { TPeerMetadata } from '@/utils/types';
+import { Video } from '@huddle01/react/components';
 import {
   useLocalAudio,
   useLocalPeer,
@@ -18,8 +19,6 @@ const inter = Inter({ subsets: ['latin'] });
 
 export default function Home({ params }: { params: { roomId: string } }) {
   const [displayName, setDisplayName] = useState<string>('');
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const screenRef = useRef<HTMLVideoElement>(null);
   const [isRecording, setIsRecording] = useState<boolean>(false);
 
   const { joinRoom, state } = useRoom({
@@ -37,18 +36,6 @@ export default function Home({ params }: { params: { roomId: string } }) {
     useLocalScreenShare();
   const { updateMetadata } = useLocalPeer<TPeerMetadata>();
   const { peerIds } = usePeerIds();
-
-  useEffect(() => {
-    if (stream && videoRef.current) {
-      videoRef.current.srcObject = stream;
-    }
-  }, [stream]);
-
-  useEffect(() => {
-    if (shareStream && screenRef.current) {
-      screenRef.current.srcObject = shareStream;
-    }
-  }, [shareStream]);
 
   const getToken = async () => {
     const tokenResponse = await fetch(`token?roomId=${params.roomId}`);
@@ -148,23 +135,16 @@ export default function Home({ params }: { params: { roomId: string } }) {
         <div className='flex-1 justify-between items-center flex flex-col'>
           <div className="relative flex place-items-center before:absolute before:h-[300px] before:w-[480px] before:-translate-x-1/2 before:rounded-full before:bg-gradient-radial before:from-white before:to-transparent before:blur-2xl before:content-[''] after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700/10 after:dark:from-sky-900 after:dark:via-[#0141ff]/40 before:lg:h-[360px]">
             <div className='relative flex gap-2'>
-              {isVideoOn && (
+              {stream && (
                 <div className='w-1/2 mx-auto border-2 rounded-xl border-blue-400'>
-                  <video
-                    ref={videoRef}
-                    className='aspect-video rounded-xl'
-                    autoPlay
-                    muted
-                  />
+                  <Video stream={stream} className='aspect-video rounded-xl' />
                 </div>
               )}
               {shareStream && (
                 <div className='w-1/2 mx-auto border-2 rounded-xl border-blue-400'>
-                  <video
-                    ref={screenRef}
+                  <Video
+                    stream={shareStream}
                     className='aspect-video rounded-xl'
-                    autoPlay
-                    muted
                   />
                 </div>
               )}
